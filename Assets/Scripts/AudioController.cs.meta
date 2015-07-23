@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1434bd04265f14e13ab0061b8030f6de
+timeCreated: 1430292446
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - Chime1: {fileID: 8300000, guid: 70482392d0b3c4990a05cd9b7dc98866, type: 3}
+  - Chime2: {fileID: 8300000, guid: c0d523bf3f730405da8b10bdd34bb92f, type: 3}
+  - Chime3: {fileID: 8300000, guid: 699e276186d9a46dc9049f07b7e08121, type: 3}
+  - Wind1: {fileID: 8300000, guid: 6f2ac880b4c5047c08c308a6ea80183b, type: 3}
+  - Wind2: {fileID: 8300000, guid: 66cd662dea7014ca49515e95d52cb7b0, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
