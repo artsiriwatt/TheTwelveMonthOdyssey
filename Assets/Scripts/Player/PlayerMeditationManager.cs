@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerMeditationController : MonoBehaviour {
+public class PlayerMeditationManager : MonoBehaviour {
 	public float fadeInRate;
 	public float fadeOutRate;
 

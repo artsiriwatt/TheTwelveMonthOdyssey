@@ -11,14 +11,14 @@ public class PlayerScript : MonoBehaviour {
 	public int meditationTimeinSeconds;
 
 	private GameObject background;
-	public GameObject playerSpawnPoint;
+	private GameObject playerSpawnPoint;
 
 	public AudioController audioManager;
 
 
 
 	//Variables for reference. Do not change. 
-	private PlayerMeditationController mediationManager;
+	private PlayerMeditationManager mediationManager;
 	private Vector3 targetPosition;
 	private GameObject mainCamera;
 	private Collider2D playerColl;
@@ -35,7 +35,17 @@ public class PlayerScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		mainCamera = GameObject.FindGameObjectsWithTag("MainCamera")[0];
+		playerSpawnPoint = GameObject.FindGameObjectsWithTag("PlayerSpawnPoint")[0];
+		background = GameObject.FindGameObjectsWithTag("background")[0];
 
+		playerColl = this.gameObject.GetComponent<Collider2D>();
+		mediationManager = this.gameObject.GetComponent<PlayerMeditationController>();
+
+		transform.position = playerSpawnPoint.transform.position;
+		targetPosition = transform.position;
+
+		interruptMeditationFrames = 0;
+		
 		RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) playerSpawnPoint.transform.position, StartingViewCircleRadius, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
 		foreach (RaycastHit2D hit in hits)
 		{	
@@ -43,16 +53,6 @@ public class PlayerScript : MonoBehaviour {
 				GameObject.Destroy(hit.transform.gameObject);
 			}
 		}
-
-		transform.position = playerSpawnPoint.transform.position;
-		targetPosition = transform.position;
-
-		playerColl = this.gameObject.GetComponent<Collider2D>();
-
-		background = GameObject.FindGameObjectsWithTag("background")[0];
-		mediationManager = this.gameObject.GetComponent<PlayerMeditationController>();
-
-		interruptMeditationFrames = 0;
 
 		/* Detect which playform the user is playing on
 		string[] desktopPlatforms = {"OSXEditor", "OSXPlayer", "WindowsPlayer", "OSXWebPlayer", 
@@ -71,6 +71,7 @@ public class PlayerScript : MonoBehaviour {
 		//Debug.Log ("X accel is" + Input.acceleration.x);
 		//Debug.Log ("Y accel is" + Input.acceleration.y);
 		//Debug.Log ("Z accel is" + Input.acceleration.z);
+
 		if (onMobile) {
 			if (isMeditating){
 				if (phoneMoved())  {
@@ -95,7 +96,6 @@ public class PlayerScript : MonoBehaviour {
 					}
 	        	}
 
-	        	
 	        	if (Input.touchCount < 2){
 	        		removedBothFingers = true;
 	       	 	}
@@ -159,7 +159,7 @@ public class PlayerScript : MonoBehaviour {
 		float sumMovement = Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z);
 		float diff = Mathf.Abs(sumMovement - previousAccel);
 
-		if (diff >= 0.2){
+		if (diff >= 0.35){
 			return true;
 		}
 		previousAccel = sumMovement;
