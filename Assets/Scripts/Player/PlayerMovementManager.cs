@@ -3,98 +3,57 @@ using System.Collections;
 
 public class PlayerMovementManager : MonoBehaviour {
 
-	public bool onMobile;
 	public float playerSpeed;
 
 	//Variables for reference. Do not change. 
-	private Vector3 targetPosition;
 	private Collider2D playerColl;
-	private Vector3 lastPosition;
+	private Vector3 targetPosition;
+	private bool moving;
+
+	private GameObject movementGuide;
 
 
 	// Use this for initialization
 	void Start () {
 		playerColl = this.gameObject.GetComponent<Collider2D>();
 
-		targetPosition = transform.position;
+		movementGuide = GameObject.FindGameObjectsWithTag("MovementIndicator")[0];
 
-		/* Detect which playform the user is playing on
-		string[] desktopPlatforms = {"OSXEditor", "OSXPlayer", "WindowsPlayer", "OSXWebPlayer", 
-		"OSXDashboardPlayer", "WindowsWebPlayer", "WindowsEditor"};
-		if (System.Array.IndexOf(desktopPlatforms, Application.platform) == -1) {
-			onMobile = false;
-		}
-		else{
-			onMobile = true;
-		}*/
-	}
-
-
-	void moveTowardsPoint() {
-
+		moving = false;
 	}
 
 	void FixedUpdate () {
-		if (onMobile) {
-			if (Input.touchCount == 1){
+		if (moving){
+			transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * playerSpeed);
 
-			}
-	     
-	        if (!isMeditating){
-	        	if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Ended) {
-			    	Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-			   		Vector3 point = ray.origin + (ray.direction*10);
-			   		point.z = 0;
-			   		if (interruptMeditationFrames == 0){
-		       			targetPosition = point;			
-					}
-	        	}
-
-	        	
-	        	if (Input.touchCount < 2){
-	        		removedBothFingers = true;
-	       	 	}
-				if (Input.touchCount == 2 && removedBothFingers){
-					transform.position = Vector3.MoveTowards(transform.position, transform.position, Time.deltaTime * playerSpeed * 10);
-				}
-	        }
+			movementGuide.SetActive(true);
+			movementGuide.transform.position = targetPosition;
 		}
-
-		else if (!onMobile) {
-			if(Input.GetKeyDown(KeyCode.Mouse0)) {
-				//For Orthographic Camera
-				//Vector3 click = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		    	//Vector3 adjustedClick = new Vector3(click.x, click.y, 0);
-		    	//Debug.Log(click);
-		    	//targetPosition = adjustedClick;
-
-		    	//For Perspective Camera
-		    	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		   		Vector3 point = ray.origin + (ray.direction*10);
-		   		point.z = 0;
-		   		if (interruptMeditationFrames == 0){
-	       			targetPosition = point;			
-				}
-        	}
-        }
-
+		else{
+			movementGuide.SetActive(false);
+		}
     }		
 
-    void Stop (){
-    	transform.position = Vector3.MoveTowards(transform.position, transform.position, Time.deltaTime * playerSpeed * 10);
+    public void MoveToLocation (Vector2 p){
+    	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		Vector3 point = ray.origin + (ray.direction*10);
+		point.z = 0;
+		targetPosition = point;
+
+		moving = true;
     }
 
-
-    void enablePhoneMovement(){
-    	onMobile = true;
+    public void Stop (){
+    	moving = false;
+    	//targetPosition = transform.position;
     }
 
-    void disablePhoneMovement(){
-    	onMobile = false;
+    public bool isMoving() {
+    	return moving;
     }
 
-    void OnCollisionEnter2D(Collision2D collision) {
-    	targetPosition = transform.position;
+    public void OnCollisionEnter2D(Collision2D collision) {
+    	Stop();
 	}
 
 }

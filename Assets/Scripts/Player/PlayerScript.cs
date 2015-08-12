@@ -4,28 +4,24 @@ using System.Collections;
 public class PlayerScript : MonoBehaviour {
 
 	public bool onMobile;
-
-	public float playerSpeed;
+	public bool simpleMovementInterruption;
 	public float StartingViewCircleRadius;
-
 	public int meditationTimeinSeconds;
+	public AudioController audioManager;
+
 
 	private GameObject background;
 	private GameObject playerSpawnPoint;
 
-	public AudioController audioManager;
-
-
-
 	//Variables for reference. Do not change. 
 	private PlayerMeditationManager mediationManager;
-	private Vector3 targetPosition;
+	private PlayerMovementManager movementManager;
 	private GameObject mainCamera;
 	private Collider2D playerColl;
-	private Vector3 lastPosition;
 	private bool isMeditating;
 	private int interruptMeditationFrames;
 	private float previousAccel;
+	private static double InterruptionTolerance = 0.35;
 	//removedBothFingers is used to ensure meditation can't immediately occur after the phone is shaken.
 	private bool removedBothFingers;
 
@@ -39,10 +35,10 @@ public class PlayerScript : MonoBehaviour {
 		background = GameObject.FindGameObjectsWithTag("background")[0];
 
 		playerColl = this.gameObject.GetComponent<Collider2D>();
-		mediationManager = this.gameObject.GetComponent<PlayerMeditationController>();
+		mediationManager = this.gameObject.GetComponent<PlayerMeditationManager>();
+		movementManager = this.gameObject.GetComponent<PlayerMovementManager>();
 
 		transform.position = playerSpawnPoint.transform.position;
-		targetPosition = transform.position;
 
 		interruptMeditationFrames = 0;
 		
@@ -74,84 +70,61 @@ public class PlayerScript : MonoBehaviour {
 
 		if (onMobile) {
 			if (isMeditating){
-				if (phoneMoved())  {
+				if (simpleMovementInterruption && phoneMoved())  {
 					InterruptMeditation();
-					interruptMeditationFrames = 30;
 				}
 
 				if (Input.touchCount < 2){
 					removedBothFingers = true;
         			InterruptMeditation();
-					interruptMeditationFrames = 30;
         		}
 	        }
-			
-	        if (!isMeditating){
-	        	if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Ended) {
-			    	Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-			   		Vector3 point = ray.origin + (ray.direction*10);
-			   		point.z = 0;
-			   		if (interruptMeditationFrames == 0){
-		       			targetPosition = point;			
-					}
-	        	}
-
+	        else if (!isMeditating){
 	        	if (Input.touchCount < 2){
 	        		removedBothFingers = true;
 	       	 	}
-				if (Input.touchCount == 2 && removedBothFingers){
-					transform.position = Vector3.MoveTowards(transform.position, transform.position, Time.deltaTime * playerSpeed * 10);
+
+	       	 	if (Input.touchCount == 0){
+	       	 		movementManager.Stop();
+	       	 	}
+	        	else if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved) {
+	        		movementManager.MoveToLocation(Input.mousePosition);
+	        	}
+				else if (Input.touchCount == 2 && removedBothFingers){
 					StartMeditation();
 				}
 	        }
 		}
 
 		if (!onMobile) {
-			if(Input.GetKeyDown(KeyCode.Mouse0)) {
-				if(isMeditating){
-					InterruptMeditation();
-					interruptMeditationFrames = 30;
+			if (isMeditating) {
+				if (Input.GetKeyDown(KeyCode.Mouse0)){
+					InterruptMeditation();	
 				}
 			}
-
-			if(Input.GetKeyDown(KeyCode.Mouse0)) {
-				//For Orthographic Camera
-				//Vector3 click = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		    	//Vector3 adjustedClick = new Vector3(click.x, click.y, 0);
-		    	//Debug.Log(click);
-		    	//targetPosition = adjustedClick;
-
-		    	//For Perspective Camera
-		    	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		   		Vector3 point = ray.origin + (ray.direction*10);
-		   		point.z = 0;
-		   		if (interruptMeditationFrames == 0){
-	       			targetPosition = point;			
+			else {
+				if(Input.GetButton("Fire1") && interruptMeditationFrames == 0){
+					movementManager.MoveToLocation(Input.mousePosition);
+				}				
+				if(Input.GetKeyUp(KeyCode.Mouse0)) {
+					movementManager.Stop();
 				}
-        	}
+			}
         }
 
-
-	   
-
       	// Walking sound effect handler. If Player is moving, play the walk sound effect
-        if (lastPosition != this.gameObject.transform.position){
+      	if(movementManager.isMoving()){
       		audioManager.Walk();
       	}
       	else{
       		audioManager.StopWalk();
       	}
-   		lastPosition = this.gameObject.transform.position;
 
    		//Interruption frames handler. if player recent comes out of meditation, don't allow them
    		//to do anything for half a second. 
    		if (interruptMeditationFrames > 0){
         	interruptMeditationFrames--;
         }
-   		if (interruptMeditationFrames == 0){
-        	transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * playerSpeed);	
-   		}
-
     }		
 
 
@@ -159,7 +132,7 @@ public class PlayerScript : MonoBehaviour {
 		float sumMovement = Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z);
 		float diff = Mathf.Abs(sumMovement - previousAccel);
 
-		if (diff >= 0.35){
+		if (diff >= InterruptionTolerance){
 			return true;
 		}
 		previousAccel = sumMovement;
@@ -175,7 +148,7 @@ public class PlayerScript : MonoBehaviour {
 		//Set Volume Levels to Meditation Levels
 		audioManager.StartMeditation();
 		//Center the Character
-		targetPosition = transform.position;
+		movementManager.Stop();
 		//Make the Background transparent
 		MakeBackgroundTransparent();
 		//Start the Finish Meditation Method to be done in X amount of time
@@ -199,6 +172,9 @@ public class PlayerScript : MonoBehaviour {
 		ResetBackgroundTransparency();
 		//Cancel The Finish Meditation Method if they interrupt the process
 		CancelInvoke("FinishMeditation");
+
+
+		interruptMeditationFrames = 30;
     }
 
     void FinishMeditation() {
@@ -271,8 +247,6 @@ public class PlayerScript : MonoBehaviour {
 		}
     }
 
-    void OnCollisionEnter2D(Collision2D collision) {
-    	targetPosition = transform.position;
-	}
+
 
 }
