@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TutorialPlayerScript : MonoBehaviour {
+public class TutorialPlayerScript : PlayerScript {
 
 	public bool onMobile;
 
@@ -13,7 +13,7 @@ public class TutorialPlayerScript : MonoBehaviour {
 	private GameObject background;
 	public GameObject playerSpawnPoint;
 
-	public AudioController audio;
+	public AudioManager audio;
 
 	public GameObject leftLamp;
 	public GameObject rightLamp;
