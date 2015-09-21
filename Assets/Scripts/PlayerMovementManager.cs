@@ -6,7 +6,6 @@ public class PlayerMovementManager : MonoBehaviour {
 	public float playerSpeed;
 
 	//Variables for reference. Do not change. 
-	private Collider2D playerColl;
 	private Vector3 targetPosition;
 	private bool moving;
 
@@ -15,8 +14,6 @@ public class PlayerMovementManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		playerColl = this.gameObject.GetComponent<Collider2D>();
-
 		movementGuide = GameObject.FindGameObjectsWithTag("MovementIndicator")[0];
 
 		moving = false;

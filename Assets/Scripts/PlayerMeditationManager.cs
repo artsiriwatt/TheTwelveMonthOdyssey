@@ -152,6 +152,22 @@ public class PlayerMeditationManager : MonoBehaviour {
 		Invoke("activateBalenceIndicator", balenceIndicatorDelay);
 	}
 
+	public void meditationStop() {
+		//Set internal boolean true
+		isMeditating = false;
+
+		MakeTransparent();
+		changeToStanding = true;
+		changeToSitting = false;
+
+		CancelInvoke("activateBalenceIndicator");
+
+		//Make inactive the Balence Indicator Object
+		if (!this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
+			balenceIndicator.SetActive(false);
+		}
+	}
+
 	public void activateBalenceIndicator() {
 		//Make active the Balence Indicator Object
 		if (!this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
@@ -171,21 +187,5 @@ public class PlayerMeditationManager : MonoBehaviour {
 		//Without Fancy-Schmancy Smoothing
 		initialXAccel = (initialXAccel + Input.acceleration.x)/2;
 		initialYAccel = (initialYAccel + Input.acceleration.y)/2;
-	}
-
-	public void meditationStop() {
-		//Set internal boolean true
-		isMeditating = false;
-
-		MakeTransparent();
-		changeToStanding = true;
-		changeToSitting = false;
-
-		CancelInvoke("activateBalenceIndicator");
-
-		//Make inactive the Balence Indicator Object
-		if (!this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
-			balenceIndicator.SetActive(false);
-		}
 	}
 }

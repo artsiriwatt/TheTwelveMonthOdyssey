@@ -9,14 +9,16 @@ public class PlayerScript : MonoBehaviour {
 	public float MeditationClearingRadius;
 	public int meditationTimeInSeconds;
 
+	//Variables for reference. Do not change. 
 	private GameObject background;
 	private GameObject playerSpawnPoint;
+	private GameObject mainCamera;
 	private AudioManager audioManager;
+	private DateTimeTracker dateTimeTracker;
 
-	//Variables for reference. Do not change. 
 	private PlayerMeditationManager mediationManager;
 	private PlayerMovementManager movementManager;
-	private GameObject mainCamera;
+
 	private Collider2D playerColl;
 	private bool isMeditating;
 	private int interruptMeditationFrames;
@@ -39,18 +41,13 @@ public class PlayerScript : MonoBehaviour {
 		movementManager = this.gameObject.GetComponent<PlayerMovementManager>();
 
 		audioManager = AudioManager.GetInstance();
+		dateTimeTracker = DateTimeTracker.GetInstance();
 
 		transform.position = playerSpawnPoint.transform.position;
 
 		interruptMeditationFrames = 0;
 		
-		RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) playerSpawnPoint.transform.position, StartingViewCircleRadius, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
-		foreach (RaycastHit2D hit in hits)
-		{	
-			if (hit.transform.tag == "cloud"){
-				GameObject.Destroy(hit.transform.gameObject);
-			}
-		}
+		ClearClouds(StartingViewCircleRadius);
 
 		/* Detect which playform the user is playing on
 		string[] desktopPlatforms = {"OSXEditor", "OSXPlayer", "WindowsPlayer", "OSXWebPlayer", 
@@ -150,11 +147,13 @@ public class PlayerScript : MonoBehaviour {
 		//Set Volume Levels to Meditation Levels
 		audioManager.StartMeditation();
 		//Center the Character
-		movementManager.Stop();
-		//Make the Background transparent
-		MakeBackgroundTransparent();
-		//Start the Finish Meditation Method to be done in X amount of time
-		Invoke("FinishMeditation", meditationTimeInSeconds);
+		movementManager.Stop();		
+		if (dateTimeTracker.IsFirstDailyMeditation()){
+			//Make the Background transparent
+			MakeBackgroundTransparent();
+			//Start the Finish Meditation Method to be done in X amount of time
+			Invoke("FinishMeditation", meditationTimeInSeconds);
+		}
 
 		if (onMobile){
 			removedBothFingers = false;
@@ -188,9 +187,11 @@ public class PlayerScript : MonoBehaviour {
     	//Play Finished Meditating Sounds
     	audioManager.FinishMeditation();
     	//Clear Clouds
-    	ClearClouds();
+    	ClearClouds(MeditationClearingRadius);
     	//Set Sound Level Back to Normal
     	ResetBackgroundTransparency();
+
+    	dateTimeTracker.MeditatedToday();
 
     }
 
@@ -199,37 +200,38 @@ public class PlayerScript : MonoBehaviour {
 		
 		foreach (RaycastHit2D hit in hits)
 		{
-			if (hit.transform.tag != "Player" && hit.transform.gameObject.GetComponent<ObjectTransparencyScript>() != null){
-				hit.transform.gameObject.GetComponent<ObjectTransparencyScript>().MakeTransparent();
+			if (hit.transform.tag != "Player" && hit.transform.gameObject.GetComponent<StaticObject>() != null){
+				hit.transform.gameObject.GetComponent<StaticObject>().MakeTransparent();
 				//Test Case - Just delete the object
 				//GameObject.Destroy(hit.transform.gameObject);
 			}
 		}
-		background.GetComponent<ObjectTransparencyScript>().MakeTransparent();
+		background.GetComponent<StaticObject>().MakeTransparent();
     }
 
     void ResetBackgroundTransparency () {
     	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) transform.position, 10f, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
 		foreach (RaycastHit2D hit in hits)
 		{
-			if (hit.transform.tag != "Player" && hit.transform.gameObject.GetComponent<ObjectTransparencyScript>() != null){
-				hit.transform.gameObject.GetComponent<ObjectTransparencyScript>().ReturnToOriginalState();
+			if (hit.transform.tag != "Player" && hit.transform.gameObject.GetComponent<StaticObject>() != null){
+				hit.transform.gameObject.GetComponent<StaticObject>().ReturnToOriginalState();
 				//Test Case - Just delete the object
 				//GameObject.Destroy(hit.transform.gameObject);
 			}
 		}
-		background.GetComponent<ObjectTransparencyScript>().ReturnToOriginalState();
+		background.GetComponent<StaticObject>().ReturnToOriginalState();
     }
 
 
-    void ClearClouds() {
+    void ClearClouds(float radius) {
 		playerColl.enabled = false;
-    	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) transform.position, MeditationClearingRadius, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
+    	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) transform.position, radius, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
 		
 		foreach (RaycastHit2D hit in hits)
 		{
-			if (hit.transform.tag == "cloud"){
-				hit.transform.gameObject.GetComponent<CloudRemovalScript>().Disappear();
+			if (hit.transform.tag == "cloud" && hit.transform.gameObject.GetComponent<CloudObject>()){
+			//if (hit.transform.tag == "cloud"){
+				hit.transform.gameObject.GetComponent<CloudObject>().KillCloud();
 			}
 		}
 		playerColl.enabled = true;
