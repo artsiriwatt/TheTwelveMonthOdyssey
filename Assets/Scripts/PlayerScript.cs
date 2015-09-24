@@ -11,7 +11,6 @@ public class PlayerScript : MonoBehaviour {
 
 	//Variables for reference. Do not change. 
 	private GameObject background;
-	private GameObject playerSpawnPoint;
 	private GameObject mainCamera;
 	private AudioManager audioManager;
 	private DateTimeTracker dateTimeTracker;
@@ -29,11 +28,10 @@ public class PlayerScript : MonoBehaviour {
 
 
 
-
 	// Use this for initialization
-	void Start () {
+	void Start () {		
+
 		mainCamera = GameObject.FindGameObjectsWithTag("MainCamera")[0];
-		playerSpawnPoint = GameObject.FindGameObjectsWithTag("PlayerSpawnPoint")[0];
 		background = GameObject.FindGameObjectsWithTag("background")[0];
 
 		playerColl = this.gameObject.GetComponent<Collider2D>();
@@ -43,11 +41,23 @@ public class PlayerScript : MonoBehaviour {
 		audioManager = AudioManager.GetInstance();
 		dateTimeTracker = DateTimeTracker.GetInstance();
 
-		transform.position = playerSpawnPoint.transform.position;
-
 		interruptMeditationFrames = 0;
 		
-		ClearClouds(StartingViewCircleRadius);
+
+		if (PlayerPrefsX.GetBool("DoneTutorial")){
+			Load();
+		}
+		else{
+			ClearClouds(StartingViewCircleRadius);
+
+			Vector3[] meditationLocations = new Vector3[100];
+			PlayerPrefs.SetInt("NumAreasCleared", 0);
+			meditationLocations[PlayerPrefs.GetInt("NumAreasCleared")] = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+			PlayerPrefs.SetInt("NumAreasCleared", PlayerPrefs.GetInt("NumAreasCleared")+1);
+			PlayerPrefsX.SetVector3Array("MeditationLocations", meditationLocations);
+			PlayerPrefsX.SetVector3("PlayerLocation", transform.position);
+			PlayerPrefsX.SetBool("DoneTutorial", true);
+		}
 
 		/* Detect which playform the user is playing on
 		string[] desktopPlatforms = {"OSXEditor", "OSXPlayer", "WindowsPlayer", "OSXWebPlayer", 
@@ -58,6 +68,22 @@ public class PlayerScript : MonoBehaviour {
 		else{
 			onMobile = true;
 		}*/
+	}
+
+	private void Load() {
+		transform.position = PlayerPrefsX.GetVector3("PlayerLocation");
+		Vector3[] meditationLocations = PlayerPrefsX.GetVector3Array("MeditationLocations");
+		for (int x = 0; x < PlayerPrefs.GetInt("NumAreasCleared"); x++){
+			ClearClouds(meditationLocations[x], MeditationClearingRadius);
+		}
+	}
+
+	private void Save() {
+		PlayerPrefsX.SetVector3("PlayerLocation", transform.position);
+		Vector3[] meditationLocations = PlayerPrefsX.GetVector3Array("MeditationLocations");
+		meditationLocations[PlayerPrefs.GetInt("NumAreasCleared")] = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+		PlayerPrefsX.SetVector3Array("MeditationLocations", meditationLocations);
+		PlayerPrefs.SetInt("NumAreasCleared", PlayerPrefs.GetInt("NumAreasCleared")+1);
 	}
 	
 
@@ -139,9 +165,8 @@ public class PlayerScript : MonoBehaviour {
 	}
 
     void StartMeditation() {
+    	//Tell the Meditation Manager to Spawn Balence Indicator and Change Sprite
     	mediationManager.meditationStart();
-    	//Zoom the Camera In
-		mainCamera.SendMessage("zoomIn");
 		//Set isMeditating to be True
     	isMeditating = true;
 		//Set Volume Levels to Meditation Levels
@@ -149,6 +174,8 @@ public class PlayerScript : MonoBehaviour {
 		//Center the Character
 		movementManager.Stop();		
 		if (dateTimeTracker.IsFirstDailyMeditation()){
+    		//Zoom the Camera In
+			mainCamera.SendMessage("zoomIn");
 			//Make the Background transparent
 			MakeBackgroundTransparent();
 			//Start the Finish Meditation Method to be done in X amount of time
@@ -192,6 +219,7 @@ public class PlayerScript : MonoBehaviour {
     	ResetBackgroundTransparency();
 
     	dateTimeTracker.MeditatedToday();
+    	Save();
 
     }
 
@@ -226,6 +254,20 @@ public class PlayerScript : MonoBehaviour {
     void ClearClouds(float radius) {
 		playerColl.enabled = false;
     	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) transform.position, radius, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
+		
+		foreach (RaycastHit2D hit in hits)
+		{
+			if (hit.transform.tag == "cloud" && hit.transform.gameObject.GetComponent<CloudObject>()){
+			//if (hit.transform.tag == "cloud"){
+				hit.transform.gameObject.GetComponent<CloudObject>().KillCloud();
+			}
+		}
+		playerColl.enabled = true;
+    }
+
+    void ClearClouds(Vector3 location, float radius) {
+		playerColl.enabled = false;
+    	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) location, radius, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
 		
 		foreach (RaycastHit2D hit in hits)
 		{

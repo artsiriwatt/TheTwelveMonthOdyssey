@@ -3,22 +3,38 @@ using System.Collections;
 
 public class DateTimeTracker : MonoBehaviour {
 
+	public bool clearData;
+
 	private bool HasMeditatedToday;
 	private static DateTimeTracker instance;
-	private string lastMeditated;
+	private string LastMeditated;
+
+	/* Player Prefs Keys:
+	LastMeditated: String
+	NumAreasCleared: Int
+	*/
+
+	/* Player PrefsX Keys:
+	PlayerLocation: Vector3
+	MeditationLocations: Vector3[]
+	DoneTutorial: Bool
+	*/
 
 	public static DateTimeTracker GetInstance() {
 		return instance;
 	}
 
 	void Awake () {
-		//PlayerPrefs.DeleteAll();
 		if (instance != null && instance != this) {
 			Destroy( this.gameObject );
 			return;
 		}
 		else {
 			instance = this;
+		}
+
+		if (clearData){
+			PlayerPrefs.DeleteAll();
 		}
 
 		LoadMeditationState();
@@ -30,19 +46,19 @@ public class DateTimeTracker : MonoBehaviour {
 	}
 
 	public void MeditatedToday() {
-		//lastMeditated = System.DateTime.Now.ToString("HH:mm:ss");
-		lastMeditated = System.DateTime.Now.ToString("MM/dd/yyyy");
-		PlayerPrefs.SetString("lastMeditated", lastMeditated);
+		//LastMeditated = System.DateTime.Now.ToString("HH:mm:ss");
+		LastMeditated = System.DateTime.Now.ToString("MM/dd/yyyy");
+		PlayerPrefs.SetString("LastMeditated", LastMeditated);
 		HasMeditatedToday = true;
 
 		ChangeMapToNight();
 	}
 
 	private void LoadMeditationState() {
-		if (PlayerPrefs.HasKey("lastMeditated")){
-			lastMeditated = PlayerPrefs.GetString("lastMeditated");
-			//if (lastMeditated == System.DateTime.Now.ToString("HH:mm:ss")){
-			if (lastMeditated == System.DateTime.Now.ToString("MM/dd/yyyy")){
+		if (PlayerPrefs.HasKey("LastMeditated")){
+			LastMeditated = PlayerPrefs.GetString("LastMeditated");
+			//if (LastMeditated == System.DateTime.Now.ToString("HH:mm:ss")){
+			if (LastMeditated == System.DateTime.Now.ToString("MM/dd/yyyy")){
 				HasMeditatedToday = true;
 				ChangeMapToNight();
 			}
@@ -55,8 +71,6 @@ public class DateTimeTracker : MonoBehaviour {
 			HasMeditatedToday = false;
 			ChangeMapToDay();
 		}
-
-		Debug.Log(HasMeditatedToday);
 	}
 
 	private void ChangeMapToDay () {

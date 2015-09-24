@@ -33,7 +33,7 @@ public class CloudObject : StaticObject {
 
 	IEnumerator MoveToTarget() {
 		while (transform.position != targetPosition){
-			transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 0.5f);
+			transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 0.75f);
 			yield return new WaitForSeconds(1f + Random.Range(0f, 3.0f));
 		}
 
