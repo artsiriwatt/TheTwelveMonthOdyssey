@@ -66,11 +66,24 @@ public class CameraScript : MonoBehaviour {
 		}
 	}
 
-	void zoomIn () {
+	public void zoomIn () {
 		zoomedIn = true;
 	}
 
-	void zoomOut () {
+	public void zoomOut () {
 		zoomedIn = false;
 	}
+
+	public void CenterCamera() {
+		StartCoroutine("MoveCameraToPlayer");
+	}
+
+	IEnumerator MoveCameraToPlayer() {
+		Vector3 targetPosition = new Vector3(player.transform.position.x, player.transform.position.y, -10);
+		while (transform.position != targetPosition){
+			transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 1);
+			yield return null;
+		}
+	}
+
 }

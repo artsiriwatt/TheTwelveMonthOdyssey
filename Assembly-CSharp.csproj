@@ -45,21 +45,23 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\AmbientController.cs" />
-     <Compile Include="Assets\Scripts\Archived\FadeOutTitle.cs" />
-     <Compile Include="Assets\Scripts\AudioManager.cs" />
      <Compile Include="Assets\Scripts\CameraScript.cs" />
-     <Compile Include="Assets\Scripts\CloudGenerationScript.cs" />
-     <Compile Include="Assets\Scripts\CloudObject.cs" />
      <Compile Include="Assets\Scripts\DateTimeTracker.cs" />
-     <Compile Include="Assets\Scripts\DynamicObject.cs" />
-     <Compile Include="Assets\Scripts\MusicController.cs" />
-     <Compile Include="Assets\Scripts\PlayerMeditationManager.cs" />
-     <Compile Include="Assets\Scripts\PlayerMovementManager.cs" />
-     <Compile Include="Assets\Scripts\PlayerPrefsX.cs" />
-     <Compile Include="Assets\Scripts\PlayerScript.cs" />
-     <Compile Include="Assets\Scripts\SoundEffectController.cs" />
-     <Compile Include="Assets\Scripts\StaticObject.cs" />
+     <Compile Include="Assets\Scripts\Objects\CloudObject.cs" />
+     <Compile Include="Assets\Scripts\Objects\DynamicObject.cs" />
+     <Compile Include="Assets\Scripts\Objects\StaticObject.cs" />
+     <Compile Include="Assets\Scripts\Player\PlayerAnimationScript.cs" />
+     <Compile Include="Assets\Scripts\Player\PlayerMeditationManager.cs" />
+     <Compile Include="Assets\Scripts\Player\PlayerMovementManager.cs" />
+     <Compile Include="Assets\Scripts\Player\PlayerScript.cs" />
+     <Compile Include="Assets\Scripts\Player\TutorialPlayerScript.cs" />
+     <Compile Include="Assets\Scripts\SaveManager.cs" />
+     <Compile Include="Assets\Scripts\Sound\AmbientController.cs" />
+     <Compile Include="Assets\Scripts\Sound\AudioManager.cs" />
+     <Compile Include="Assets\Scripts\Sound\CloudGenerationScript.cs" />
+     <Compile Include="Assets\Scripts\Sound\MusicController.cs" />
+     <Compile Include="Assets\Scripts\Sound\SoundEffectController.cs" />
+     <Compile Include="Assets\Scripts\Utilities\PlayerPrefsX.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

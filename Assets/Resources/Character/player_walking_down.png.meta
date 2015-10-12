@@ -1,0 +1,221 @@
+fileFormatVersion: 2
+guid: 06cbd7054144846c38e83942876418d1
+timeCreated: 1444270901
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: player_walking_down_0
+    21300002: player_walking_down_1
+    21300004: player_walking_down_2
+    21300006: player_walking_down_3
+    21300008: player_walking_down_4
+    21300010: player_walking_down_5
+    21300012: player_walking_down_6
+    21300014: player_walking_down_7
+    21300016: player_walking_down_8
+    21300018: player_walking_down_9
+    21300020: player_walking_down_10
+    21300022: player_walking_down_11
+    21300024: player_walking_down_12
+    21300026: player_walking_down_13
+    21300028: player_walking_down_14
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 4096
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 150
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: player_walking_down_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 8412
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_1
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 8412
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_2
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 8412
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6309
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_4
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 6309
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_5
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 6309
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4206
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_7
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 4206
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_8
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 4206
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2103
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_10
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 2103
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_11
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 2103
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_13
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 0
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: player_walking_down_14
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 0
+        width: 756
+        height: 2103
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

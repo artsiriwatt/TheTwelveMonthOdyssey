@@ -3,22 +3,11 @@ using System.Collections;
 
 public class DateTimeTracker : MonoBehaviour {
 
-	public bool clearData;
+	public bool disableDailyTimer;
 
 	private bool HasMeditatedToday;
 	private static DateTimeTracker instance;
 	private string LastMeditated;
-
-	/* Player Prefs Keys:
-	LastMeditated: String
-	NumAreasCleared: Int
-	*/
-
-	/* Player PrefsX Keys:
-	PlayerLocation: Vector3
-	MeditationLocations: Vector3[]
-	DoneTutorial: Bool
-	*/
 
 	public static DateTimeTracker GetInstance() {
 		return instance;
@@ -31,10 +20,6 @@ public class DateTimeTracker : MonoBehaviour {
 		}
 		else {
 			instance = this;
-		}
-
-		if (clearData){
-			PlayerPrefs.DeleteAll();
 		}
 
 		LoadMeditationState();
@@ -58,7 +43,7 @@ public class DateTimeTracker : MonoBehaviour {
 		if (PlayerPrefs.HasKey("LastMeditated")){
 			LastMeditated = PlayerPrefs.GetString("LastMeditated");
 			//if (LastMeditated == System.DateTime.Now.ToString("HH:mm:ss")){
-			if (LastMeditated == System.DateTime.Now.ToString("MM/dd/yyyy")){
+			if (LastMeditated == System.DateTime.Now.ToString("MM/dd/yyyy") && !disableDailyTimer){
 				HasMeditatedToday = true;
 				ChangeMapToNight();
 			}
