@@ -7,11 +7,12 @@ public class PlayerMeditationManager : MonoBehaviour {
 
 	public bool disableBalenceIndicator;
 
-	public Sprite standingSprite;
-	public Sprite sittingSprite;
+	//public Sprite standingSprite;
+	//public Sprite sittingSprite;
 
 	private GameObject balenceIndicator;
-	private GameObject player;
+	private PlayerScript player;
+	private PlayerMovementManager animationManager;
 
 	// Set the rate of the tick(how often the sprite changes). Change only if necessary. 
 	private static int tick = 5;
@@ -21,9 +22,8 @@ public class PlayerMeditationManager : MonoBehaviour {
 	private static float xBalenceThreshold = 0.005f;
 
 	//Variables for reference. Do not change.
-	private bool isMeditating;
-	private bool isBecomingTransparent = false;
-	private bool isBecomingNormal = false;
+	private bool hasNotTransitionedYet;
+	[HideInInspector]public bool isSitting;
 	private int framecount = 0;
 	private int balenceFrameCount = 0;
 	private Color originalColor;
@@ -44,22 +44,25 @@ public class PlayerMeditationManager : MonoBehaviour {
 			balenceIndicator = GameObject.FindGameObjectsWithTag("BalenceIndicator")[0];
 		}
 
-		player = GameObject.FindGameObjectsWithTag("Player")[0];
+		player = this.gameObject.GetComponent<PlayerScript>();
 
 		balenceIndicatorLocation = new Vector3(0,0,0);
 
-		isMeditating = false;
+		animationManager = this.gameObject.GetComponent<PlayerMovementManager>();
+
+		animationManager.SetSitting();
+		isSitting = true;
 	}
 	
 	void FixedUpdate () {
 		//Handler for Balence Indicator
-		if (!disableBalenceIndicator && isMeditating && !this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
+		if (!disableBalenceIndicator && player.isMeditating && !this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
 			balenceIndicator.transform.position = balenceIndicatorLocation;
 			screenPosition = Camera.main.WorldToScreenPoint(balenceIndicator.transform.position);
 
 			if (screenPosition.y > Screen.height || screenPosition.y < 0 || screenPosition.x > Screen.width || screenPosition.x < 0){
-				Handheld.Vibrate();
-				player.SendMessage ("InterruptMeditation");
+				//Handheld.Vibrate();
+				player.InterruptMeditation();
 			}
 
 			if (Mathf.Abs((Input.acceleration.y - initialYAccel)) > yBalenceThreshold){
@@ -89,57 +92,75 @@ public class PlayerMeditationManager : MonoBehaviour {
 
 
 		//This is the handler when the character sprite is transparent. 
-		if (isTransparent()){
+		if (isTransparent() && hasNotTransitionedYet){
 			if (changeToSitting){
-				this.GetComponent<SpriteRenderer>().sprite = sittingSprite;
+				animationManager.SetSitting();
+				//this.GetComponent<SpriteRenderer>().sprite = sittingSprite;
 				changeToSitting = false;
 
 				initialXAccel = Input.acceleration.x;
 				initialYAccel = Input.acceleration.y;
 			}
 			else if (changeToStanding){
-				this.GetComponent<SpriteRenderer>().sprite = standingSprite;
+				animationManager.SetStanding();
+				//this.GetComponent<SpriteRenderer>().sprite = standingSprite;
 				changeToStanding = false;
 			}
-			ReturnToOriginalState();
+			Invoke("ReturnToOriginalState", 0.25f);
+			hasNotTransitionedYet = false;
 		}
 
-		//Handler for Fading in and out during sprite change. 
-		if (isBecomingTransparent) {
-			if(framecount >= tick) {
-				framecount = 0;
-				Color update = this.gameObject.GetComponent<Renderer>().material.color;
-				update.a -= fadeOutRate;
-				this.gameObject.GetComponent<Renderer>().material.color = update;
-				if (update.a <= 0) {
-					isBecomingTransparent = false;
-				}
-			}	
-			framecount++;
-		}
-		if (isBecomingNormal) {
-			if(framecount >= tick) {
-				framecount = 0;
-				Color update = this.gameObject.GetComponent<Renderer>().material.color;
-				update.a += fadeInRate;
-				this.gameObject.GetComponent<Renderer>().material.color = update;
-				if (update.a >= originalAlpha) {
-					this.gameObject.GetComponent<Renderer>().material.color = originalColor;
-					isBecomingNormal = false;
-				}
-			}
-			framecount++;
-		}
+
 	}
 
 	public void MakeTransparent () {
-		isBecomingTransparent = true;
-		isBecomingNormal = false;
+		TransitionToAlphaValue(0f, fadeOutRate);
+		hasNotTransitionedYet = true;
 	}
 
 	public void ReturnToOriginalState () {
-		isBecomingNormal = true;
-		isBecomingTransparent = false;
+		TransitionToAlphaValue(1f, fadeInRate);
+		hasNotTransitionedYet = true;
+	}
+
+	public void TransitionToAlphaValue(float a, float r){
+		StopAllCoroutines();
+		StartCoroutine(TransitionToAlpha(a, r));
+	}
+
+	IEnumerator TransitionToAlpha(float alpha, float rate) {
+		Color c = this.gameObject.GetComponent<Renderer>().material.color;
+		framecount = 0;
+
+		if (c.a > alpha){
+			while (c.a > alpha) {
+				framecount++;
+				if (framecount >= tick){
+					framecount = 0;
+					c.a -= rate;
+					this.gameObject.GetComponent<Renderer>().material.color = c;
+				}
+				yield return null;
+			}
+		}
+		else if (c.a < alpha) {
+			
+			while (c.a < alpha) {
+				framecount++;
+				if (framecount >= tick){
+					framecount = 0;
+					c.a += rate;
+					this.gameObject.GetComponent<Renderer>().material.color = c;
+				}
+				yield return null;
+			}
+		}	
+	}
+
+	public void SetAlphaValue (float a) {
+		Color update = this.gameObject.GetComponent<Renderer>().material.color;
+		update.a = a;
+		this.gameObject.GetComponent<Renderer>().material.color = update;
 	}
 
 	public bool isTransparent() {
@@ -147,7 +168,10 @@ public class PlayerMeditationManager : MonoBehaviour {
 		return update.a <= 0;
 	}
 
-	public void meditationStart() {
+	public void meditationStart() {		
+		//Set internal boolean true
+		isSitting = true;
+
 		MakeTransparent();
 		changeToSitting = true;
 		changeToStanding = false;
@@ -155,37 +179,37 @@ public class PlayerMeditationManager : MonoBehaviour {
 		if (!disableBalenceIndicator){
 			Invoke("activateBalenceIndicator", balenceIndicatorDelay);
 		}
+
 	}
 
 	public void meditationStop() {
-		//Set internal boolean true
-		isMeditating = false;
+		//Set internal boolean false
+		isSitting = false;
 
 		MakeTransparent();
 		changeToStanding = true;
 		changeToSitting = false;
 
-		CancelInvoke("activateBalenceIndicator");
-
+		//Cancel Balence Indicator function call if 
+		if (!disableBalenceIndicator){
+			CancelInvoke("activateBalenceIndicator");
+		}
+		
 		//Make inactive the Balence Indicator Object
-		if (!this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
+		if (!disableBalenceIndicator && !this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
 			balenceIndicator.SetActive(false);
 		}
 	}
 
 	public void activateBalenceIndicator() {
 		//Make active the Balence Indicator Object
-		if (!this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
+		if (!disableBalenceIndicator && !this.gameObject.GetComponent<PlayerScript>().PointAndClickMovement){
 			balenceIndicator.SetActive(true);
-			balenceIndicatorLocation = new Vector3(player.transform.position.x, player.transform.position.y + 1, 0);
+			balenceIndicatorLocation = new Vector3(transform.position.x, transform.position.y + 1, 0);
 			balenceIndicator.transform.position = balenceIndicatorLocation;
 			
 			calibrateAcceleration();
 		}
-
-		//Set internal boolean true
-		isMeditating = true;
-
 	}
 
 	void calibrateAcceleration() {

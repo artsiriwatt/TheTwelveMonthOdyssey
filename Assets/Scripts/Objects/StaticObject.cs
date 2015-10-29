@@ -3,12 +3,6 @@ using System.Collections;
 
 public class StaticObject : MonoBehaviour {
 
-	enum RenderState{
-		BecomingTransparent, 
-		BecomingNormal,
-		Transparent,
-		Normal
-	};
 
 	/* The ratio of the rates for 2 minutes of meditation where the world 
 	will be completely transparent after the 2 minutes:
@@ -21,54 +15,63 @@ public class StaticObject : MonoBehaviour {
 
 	//Variables for reference. Do not change.
 	private int framecount = 0;
-	private RenderState state;
 	Color originalColor;
 	float originalAlpha;
 
 
 	protected void Start () {
-		state = RenderState.Normal;
 		originalColor = this.gameObject.GetComponent<Renderer>().material.color;
 		originalAlpha = originalColor.a;
 	}
 	
 	void FixedUpdate () {
-		switch (state) {
-			case RenderState.BecomingTransparent:
-				if(framecount >= tick) {
-					framecount = 0;
-					Color update = this.gameObject.GetComponent<Renderer>().material.color;
-					update.a -= fadeOutRate;
-					this.gameObject.GetComponent<Renderer>().material.color = update;
-					if (isTransparent()) {
-						state = RenderState.Transparent;
-					}
-				}	
-				framecount++;
-				break;
+	}
 
-			case RenderState.BecomingNormal:
-				if(framecount >= tick) {
-					framecount = 0;
-					Color update = this.gameObject.GetComponent<Renderer>().material.color;
-					update.a += fadeInRate;
-					this.gameObject.GetComponent<Renderer>().material.color = update;
-					if (update.a >= originalAlpha) {
-						this.gameObject.GetComponent<Renderer>().material.color = originalColor;
-						state = RenderState.Normal;
-					}
-				}
+	public void TransitionToAlphaValue(float a, float r){
+		StopAllCoroutines();
+		StartCoroutine(TransitionToAlpha(a, r));
+	}
+
+	IEnumerator TransitionToAlpha(float alpha, float rate) {
+		Color c = this.gameObject.GetComponent<Renderer>().material.color;
+		framecount = 0;
+
+		if (c.a > alpha){
+			while (c.a > alpha) {
 				framecount++;
-				break;
+				if (framecount >= tick){
+					framecount = 0;
+					c.a -= rate;
+					this.gameObject.GetComponent<Renderer>().material.color = c;
+				}
+				yield return null;
+			}
 		}
+		else if (c.a < alpha) {
+			while (c.a < alpha) {
+				framecount++;
+				if (framecount >= tick){
+					framecount = 0;
+					c.a += rate;
+					this.gameObject.GetComponent<Renderer>().material.color = c;
+				}
+				yield return null;
+			}
+		}	
+	}
+
+	public void SetAlphaValue (float a) {
+		Color update = this.gameObject.GetComponent<Renderer>().material.color;
+		update.a = a;
+		this.gameObject.GetComponent<Renderer>().material.color = update;
 	}
 
 	public void MakeTransparent () {
-		state = RenderState.BecomingTransparent;
+		TransitionToAlphaValue(0f, fadeOutRate);
 	}
 
 	public void ReturnToOriginalState () {
-		state = RenderState.BecomingNormal;
+		TransitionToAlphaValue(originalAlpha, fadeInRate);
 	}
 
 	public bool isTransparent() {

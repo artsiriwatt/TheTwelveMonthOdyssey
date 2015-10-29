@@ -9,34 +9,64 @@ public class PlayerMovementManager : MonoBehaviour {
 	private Vector3 targetPosition;
 	[HideInInspector]public bool moving;
 
-	private GameObject movementGuide;
+	private Animator animator;
+	private GameObject movementIndicator;
 
 
 	// Use this for initialization
 	void Start () {
-		movementGuide = GameObject.FindGameObjectsWithTag("MovementIndicator")[0];
-
+		movementIndicator = GameObject.FindGameObjectsWithTag("MovementIndicator")[0];
+		animator = this.GetComponent<Animator>();
 		moving = false;
 	}
 
 	void FixedUpdate () {
 		if (moving){
+			float xdif = movementIndicator.transform.position.x - transform.position.x;
+			float ydif = movementIndicator.transform.position.y - transform.position.y;
+			//Debug.Log("xdif is " + xdif);
+			//Debug.Log("ydif is " + ydif);
+
+			if (Mathf.Abs(xdif) >= Mathf.Abs(ydif)){
+				if (xdif > 0){
+					animator.SetInteger("Direction", 2);
+				}
+				else {
+					animator.SetInteger("Direction", 4);
+				}
+			} 
+			else {
+				if (ydif > 0){
+					animator.SetInteger("Direction", 1);
+				}
+				else {
+					animator.SetInteger("Direction", 3);
+				}
+			}
+
 			transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * playerSpeed);
 
-			movementGuide.SetActive(true);
-			movementGuide.transform.position = targetPosition;
+			movementIndicator.SetActive(true);
+			movementIndicator.transform.position = targetPosition;
 		}
-		else{
-			movementGuide.SetActive(false);
+		else if (animator.GetInteger("Direction") != 5){
+			//animator.enabled = false;
+			movementIndicator.SetActive(false);
+			animator.SetInteger("Direction", 0);
 		}
     }		
 
-    public void MoveToLocation (Vector2 p){
-    	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		Vector3 point = ray.origin + (ray.direction*10);
-		point.z = 0;
-		targetPosition = point;
 
+    public void SetStanding() {
+    	animator.SetInteger("Direction", 0);
+    }
+
+    public void SetSitting() {
+    	animator.SetInteger("Direction", 5);
+    }
+
+    public void MoveToLocation (Vector2 p){
+		targetPosition = new Vector3 (p.x, p.y, 0);
 		moving = true;
     }
 

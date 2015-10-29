@@ -11,15 +11,15 @@ public class PlayerScript : MonoBehaviour {
 
 	//Variables for reference. Do not change. 
 	protected GameObject background;
-	protected GameObject mainCamera;
+	protected CameraScript mainCamera;
 	protected AudioManager audioManager;
 	protected SaveManager saveManager;
 
 	protected PlayerMeditationManager mediationManager;
 	protected PlayerMovementManager movementManager;
 
+	[HideInInspector]public bool isMeditating;
 	protected Collider2D playerColl;
-	protected bool isMeditating;
 	protected int interruptMeditationFrames;
 	protected float previousAccel;
 	protected static double InterruptionTolerance = 0.35;
@@ -30,7 +30,7 @@ public class PlayerScript : MonoBehaviour {
 	// Use this for initialization
 	protected void Awake () {		
 
-		mainCamera = GameObject.FindGameObjectsWithTag("MainCamera")[0];
+		mainCamera = GameObject.FindGameObjectsWithTag("MainCamera")[0].GetComponent<CameraScript>();
 		background = GameObject.FindGameObjectsWithTag("background")[0];
 
 		playerColl = this.gameObject.GetComponent<Collider2D>();
@@ -54,6 +54,21 @@ public class PlayerScript : MonoBehaviour {
 		}*/
 	}
 
+	/*void Start () {
+		//Tell the Meditation Manager to Spawn Balence Indicator and Change Sprite
+    	mediationManager.meditationStart();
+		//Set isMeditating to be True
+    	isMeditating = true;
+		//Center the Character
+		movementManager.Stop();	
+
+
+		if (onMobile){
+			removedBothFingers = false;
+			previousAccel = Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z);
+		}
+	}*/
+
 	public void ClearClouds (Vector3[] locations) {
     	for (int x = 0; x < saveManager.NumAreasCleared; x++){
 			ClearClouds(locations[x], MeditationClearingRadius);
@@ -70,7 +85,7 @@ public class PlayerScript : MonoBehaviour {
 		//Debug.Log ("Z accel is" + Input.acceleration.z);
 
 		if (onMobile) {
-			if (isMeditating){
+			if (isMeditating || mediationManager.isSitting){
 				if (PointAndClickMovement && phoneMoved())  {
 					InterruptMeditation();
 				}
@@ -89,7 +104,10 @@ public class PlayerScript : MonoBehaviour {
 	       	 		movementManager.Stop();
 	       	 	}
 	        	else if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved) {
-	        		movementManager.MoveToLocation(Input.mousePosition);
+	        		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+					Vector3 point = ray.origin + (ray.direction*10);
+					Vector2 p = new Vector2(point.x, point.y);
+	        		movementManager.MoveToLocation(p);
 	        	}
 				else if (Input.touchCount == 2 && removedBothFingers){
 					StartMeditation();
@@ -98,7 +116,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 
 		if (!onMobile) {
-			if (isMeditating) {
+			if (isMeditating || mediationManager.isSitting) {
 				if (Input.GetKeyDown(KeyCode.Mouse0)){
 					InterruptMeditation();	
 				}
@@ -115,7 +133,7 @@ public class PlayerScript : MonoBehaviour {
 						StartMeditation();
 					}
 					else if (interruptMeditationFrames == 0){
-						movementManager.MoveToLocation(Input.mousePosition);
+						movementManager.MoveToLocation(p);
 					}
 				}
 		
@@ -163,7 +181,7 @@ public class PlayerScript : MonoBehaviour {
 			//Set Volume Levels to Meditation Levels
 			audioManager.StartMeditation();
     		//Zoom the Camera In
-			mainCamera.SendMessage("zoomIn");
+			mainCamera.zoomIn();
 			//Make the Background transparent
 			MakeBackgroundTransparent();
 			//Start the Finish Meditation Method to be done in X amount of time
@@ -171,11 +189,10 @@ public class PlayerScript : MonoBehaviour {
 		}
 		else{
 			//Center the Camera on the player
-			mainCamera.SendMessage("CenterCamera");
+			mainCamera.CenterCamera();
 			//Set Volume Levels to Meditation Levels
 			audioManager.StartMeditation(false, false, true);
 		}
-
 
 
 		if (onMobile){
@@ -184,10 +201,10 @@ public class PlayerScript : MonoBehaviour {
 		}
     }
 
-    protected void InterruptMeditation() {
+    public void InterruptMeditation() {
     	mediationManager.meditationStop();
     	//Zoom the Camera Out
-    	mainCamera.SendMessage("zoomOut");
+    	mainCamera.zoomOut();
     	//Set isMeditating to be False
 		isMeditating = false;
 		//Set Volume to Background Levels
@@ -204,7 +221,7 @@ public class PlayerScript : MonoBehaviour {
     protected void FinishMeditation() {
     	mediationManager.meditationStop();
     	//Zoom the Camera Out
-    	mainCamera.SendMessage("zoomOut");
+    	mainCamera.zoomOut();
     	//Set isMeditating to False
     	isMeditating = false;
     	//Play Finished Meditating Sounds
