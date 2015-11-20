@@ -4,7 +4,6 @@ using System.Collections;
 public class PlayerScript : MonoBehaviour {
 
 	public bool onMobile;
-	public bool PointAndClickMovement;
 	public float StartingViewCircleRadius;
 	public float MeditationClearingRadius;
 	public int meditationTimeInSeconds;
@@ -15,7 +14,7 @@ public class PlayerScript : MonoBehaviour {
 	protected AudioManager audioManager;
 	protected SaveManager saveManager;
 
-	protected PlayerMeditationManager mediationManager;
+	protected PlayerSpriteManager spriteManager;
 	protected PlayerMovementManager movementManager;
 
 	[HideInInspector]public bool isMeditating;
@@ -26,6 +25,8 @@ public class PlayerScript : MonoBehaviour {
 	//removedBothFingers is used to ensure meditation can't immediately occur after the phone is shaken.
 	protected bool removedBothFingers;
 
+    public Vector3 GetLocation() {	return transform.position; }
+    public void SetLocation(Vector3 location) {	 transform.position = location; }
 
 	// Use this for initialization
 	protected void Awake () {		
@@ -34,14 +35,13 @@ public class PlayerScript : MonoBehaviour {
 		background = GameObject.FindGameObjectsWithTag("background")[0];
 
 		playerColl = this.gameObject.GetComponent<Collider2D>();
-		mediationManager = this.gameObject.GetComponent<PlayerMeditationManager>();
+		spriteManager = this.gameObject.GetComponent<PlayerSpriteManager>();
 		movementManager = this.gameObject.GetComponent<PlayerMovementManager>();
 
 		audioManager = AudioManager.GetInstance();
 		saveManager = SaveManager.GetInstance();
 
 		interruptMeditationFrames = 0;
-
 
 		/* Detect which playform the user is playing on
 		string[] desktopPlatforms = {"OSXEditor", "OSXPlayer", "WindowsPlayer", "OSXWebPlayer", 
@@ -54,42 +54,14 @@ public class PlayerScript : MonoBehaviour {
 		}*/
 	}
 
-	/*void Start () {
-		//Tell the Meditation Manager to Spawn Balence Indicator and Change Sprite
-    	mediationManager.meditationStart();
-		//Set isMeditating to be True
-    	isMeditating = true;
-		//Center the Character
-		movementManager.Stop();	
-
-
-		if (onMobile){
-			removedBothFingers = false;
-			previousAccel = Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z);
-		}
-	}*/
-
-	public void ClearClouds (Vector3[] locations) {
-    	for (int x = 0; x < saveManager.NumAreasCleared; x++){
-			ClearClouds(locations[x], MeditationClearingRadius);
-		}
-    }
-
-    public Vector3 GetLocation() {	return transform.position; }
-    public void SetLocation(Vector3 location) {	 transform.position = location; }
+	protected void Start () {
+		movementManager.SetSitting();
+		spriteManager.isSitting = true;
+	}
 
 	protected void FixedUpdate () {
-		//Debug.Log(Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z));
-		//Debug.Log ("X accel is" + Input.acceleration.x);
-		//Debug.Log ("Y accel is" + Input.acceleration.y);
-		//Debug.Log ("Z accel is" + Input.acceleration.z);
-
 		if (onMobile) {
-			if (isMeditating || mediationManager.isSitting){
-				if (PointAndClickMovement && phoneMoved())  {
-					InterruptMeditation();
-				}
-
+			if (isMeditating){
 				if (Input.touchCount < 2){
 					removedBothFingers = true;
         			InterruptMeditation();
@@ -116,7 +88,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 
 		if (!onMobile) {
-			if (isMeditating || mediationManager.isSitting) {
+			if (isMeditating || spriteManager.isSitting) {
 				if (Input.GetKeyDown(KeyCode.Mouse0)){
 					InterruptMeditation();	
 				}
@@ -158,21 +130,9 @@ public class PlayerScript : MonoBehaviour {
         }
     }		
 
-
-	protected bool phoneMoved () {
-		float sumMovement = Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z);
-		float diff = Mathf.Abs(sumMovement - previousAccel);
-
-		if (diff >= InterruptionTolerance){
-			return true;
-		}
-		previousAccel = sumMovement;
-		return false;
-	}
-
     protected void StartMeditation() {	
     	//Tell the Meditation Manager to Spawn Balence Indicator and Change Sprite
-    	mediationManager.meditationStart();
+    	spriteManager.changeSpriteToSitting();
 		//Set isMeditating to be True
     	isMeditating = true;
 		//Center the Character
@@ -202,7 +162,7 @@ public class PlayerScript : MonoBehaviour {
     }
 
     public void InterruptMeditation() {
-    	mediationManager.meditationStop();
+    	spriteManager.changeSpriteToStanding();
     	//Zoom the Camera Out
     	mainCamera.zoomOut();
     	//Set isMeditating to be False
@@ -219,7 +179,7 @@ public class PlayerScript : MonoBehaviour {
     }
 
     protected void FinishMeditation() {
-    	mediationManager.meditationStop();
+    	spriteManager.changeSpriteToStanding();
     	//Zoom the Camera Out
     	mainCamera.zoomOut();
     	//Set isMeditating to False
@@ -233,6 +193,18 @@ public class PlayerScript : MonoBehaviour {
 
     	saveManager.Save();
     }
+
+
+    protected bool phoneMoved() {
+		float sumMovement = Mathf.Abs(Input.acceleration.x) + Mathf.Abs(Input.acceleration.y) + Mathf.Abs(Input.acceleration.z);
+		float diff = Mathf.Abs(sumMovement - previousAccel);
+
+		if (diff >= InterruptionTolerance){
+			return true;
+		}
+		previousAccel = sumMovement;
+		return false;
+	}
 
     protected void MakeBackgroundTransparent() {
     	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) transform.position, 10f, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
@@ -248,7 +220,7 @@ public class PlayerScript : MonoBehaviour {
 		background.GetComponent<StaticObject>().MakeTransparent();
     }
 
-    protected void ResetBackgroundTransparency () {
+    protected void ResetBackgroundTransparency() {
     	RaycastHit2D[] hits = Physics2D.CircleCastAll((Vector2) transform.position, 10f, Vector2.zero); //, 0f, LayerMask.NameToLayer("Clouds"));
 		foreach (RaycastHit2D hit in hits)
 		{
@@ -259,6 +231,12 @@ public class PlayerScript : MonoBehaviour {
 			}
 		}
 		background.GetComponent<StaticObject>().ReturnToOriginalState();
+    }
+
+    public void ClearClouds(Vector3[] locations) {
+    	for (int x = 0; x < saveManager.NumAreasCleared; x++){
+			ClearClouds(locations[x], MeditationClearingRadius);
+		}
     }
 
     protected void ClearClouds(float radius) {

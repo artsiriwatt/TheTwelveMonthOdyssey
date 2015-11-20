@@ -21,6 +21,9 @@ public class PlayerMovementManager : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+		//Debug.Log(animator.GetInteger("Direction") == 5);
+		//Debug.Log(moving);
+		//Debug.Log(animator.GetInteger("Direction"));
 		if (moving){
 			float xdif = movementIndicator.transform.position.x - transform.position.x;
 			float ydif = movementIndicator.transform.position.y - transform.position.y;

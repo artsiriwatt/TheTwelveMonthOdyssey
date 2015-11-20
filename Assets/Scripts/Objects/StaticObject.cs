@@ -27,6 +27,12 @@ public class StaticObject : MonoBehaviour {
 	void FixedUpdate () {
 	}
 
+	public void SetAlphaValue (float a) {
+		Color update = this.gameObject.GetComponent<Renderer>().material.color;
+		update.a = a;
+		this.gameObject.GetComponent<Renderer>().material.color = update;
+	}
+
 	public void TransitionToAlphaValue(float a, float r){
 		StopAllCoroutines();
 		StartCoroutine(TransitionToAlpha(a, r));
@@ -58,12 +64,6 @@ public class StaticObject : MonoBehaviour {
 				yield return null;
 			}
 		}	
-	}
-
-	public void SetAlphaValue (float a) {
-		Color update = this.gameObject.GetComponent<Renderer>().material.color;
-		update.a = a;
-		this.gameObject.GetComponent<Renderer>().material.color = update;
 	}
 
 	public void MakeTransparent () {

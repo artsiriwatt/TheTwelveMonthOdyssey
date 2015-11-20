@@ -19,6 +19,9 @@ public class AmbientController : MonoBehaviour {
 
 	}
 
+	public void SetMaxVolumeLevel() {	ambientSource.volume = higherAmbientVolumeLevel;}
+	public void SetMinVolumeLevel() {	ambientSource.volume = lowerAmbientVolumeLevel;}
+
 	// Update is called once per frame
 	void Update () {
 		//Small hack so that the game plays two sounds in a row

@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class AudioManager : MonoBehaviour {
+	public bool turnOffMusic;
 
 	private static AudioManager instance;
 	public AmbientController ambientController;
@@ -18,14 +19,26 @@ public class AudioManager : MonoBehaviour {
     	}
     }
 
+    void Start () {
+    	if (turnOffMusic){
+    		ambientController.SetMinVolumeLevel();
+    	}
+    }
+
    	public static AudioManager GetInstance() 
     {
        return instance;
     }
 
 	public void StartMeditation () {
-		ambientController.DecreaseAmbientVolume();
-		musicController.PlayMeditationMusic();
+		if (turnOffMusic){
+			ambientController.IncreaseAmbientVolume();
+		}
+		else {
+			ambientController.DecreaseAmbientVolume();
+			musicController.PlayMeditationMusic();
+		}
+
 		soundEffectController.PlaySitDown();
 	}
 
@@ -33,7 +46,7 @@ public class AudioManager : MonoBehaviour {
 		if (decreaseAmbient){
 			ambientController.DecreaseAmbientVolume();
 		}
-		if (playMusic){
+		if (playMusic && !turnOffMusic){
 			musicController.PlayMeditationMusic();
 		}
 		if (playSoundEffects){
@@ -42,8 +55,13 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public void StopMeditation () {
-		ambientController.IncreaseAmbientVolume();
-		musicController.StopMeditationMusic();
+		if (turnOffMusic){
+			ambientController.DecreaseAmbientVolume();
+		}
+		else {
+			ambientController.IncreaseAmbientVolume();
+			musicController.StopMeditationMusic();
+		}
 		soundEffectController.PlayStandUp();
 	}
 

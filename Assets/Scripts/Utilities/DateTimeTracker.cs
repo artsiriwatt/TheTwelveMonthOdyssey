@@ -59,10 +59,10 @@ public class DateTimeTracker : MonoBehaviour {
 	}
 
 	private void ChangeMapToDay () {
-		GameObject.FindGameObjectsWithTag("background")[0].GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Maps/map_1");
+		GameObject.FindGameObjectsWithTag("background")[0].GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Background Map Sprites/map_1");
 	}
 	private void ChangeMapToNight () {
-		GameObject.FindGameObjectsWithTag("background")[0].GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Maps/map_1_night");
+		GameObject.FindGameObjectsWithTag("background")[0].GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Background Map Sprites/map_1_night");
 
 	}
 }

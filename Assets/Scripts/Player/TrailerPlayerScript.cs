@@ -18,7 +18,7 @@ public class TrailerPlayerScript : MonoBehaviour {
 	protected CameraScript mainCamera;
 	protected AudioManager audioManager;
 
-	protected PlayerMeditationManager mediationManager;
+	protected PlayerSpriteManager spriteManager;
 	protected PlayerMovementManager movementManager;
 
 	protected Collider2D playerColl;
@@ -37,7 +37,7 @@ public class TrailerPlayerScript : MonoBehaviour {
 		background = GameObject.FindGameObjectsWithTag("background")[0];
 
 		playerColl = this.gameObject.GetComponent<Collider2D>();
-		mediationManager = this.gameObject.GetComponent<PlayerMeditationManager>();
+		spriteManager = this.gameObject.GetComponent<PlayerSpriteManager>();
 		movementManager = this.gameObject.GetComponent<PlayerMovementManager>();
 
 		audioManager = AudioManager.GetInstance();
@@ -74,7 +74,7 @@ public class TrailerPlayerScript : MonoBehaviour {
 
 
 		if (!onMobile) {
-			if (isMeditating || mediationManager.isSitting) {
+			if (isMeditating || spriteManager.isSitting) {
 				if (Input.GetButton("Fire1")){
 					InterruptMeditation();	
 				}
@@ -151,7 +151,7 @@ public class TrailerPlayerScript : MonoBehaviour {
 
     protected void StartMeditation() {	
     	//Tell the Meditation Manager to Spawn Balence Indicator and Change Sprite
-    	mediationManager.meditationStart();
+    	spriteManager.changeSpriteToSitting();
 		//Set isMeditating to be True
     	isMeditating = true;
 		//Center the Character
@@ -181,7 +181,7 @@ public class TrailerPlayerScript : MonoBehaviour {
     }
 
     protected void InterruptMeditation() {
-    	mediationManager.meditationStop();
+    	spriteManager.changeSpriteToStanding();
     	//Zoom the Camera Out
     	mainCamera.zoomOut();
     	//Set isMeditating to be False
@@ -198,7 +198,7 @@ public class TrailerPlayerScript : MonoBehaviour {
     }
 
     protected void FinishMeditation() {
-    	mediationManager.meditationStop();
+    	spriteManager.changeSpriteToStanding();
     	//Zoom the Camera Out
     	mainCamera.zoomOut();
     	//Set isMeditating to False

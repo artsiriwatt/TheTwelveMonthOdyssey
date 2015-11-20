@@ -29,9 +29,7 @@ public class LoadLevelManager : MonoBehaviour {
 				ClearSaveData();
 				PlayerPrefsX.SetBool("DoneTutorial", true);
 				PlayerPrefsX.SetBool("InitializeWorld1", true);
-				Application.LoadLevel("Alpha_World1");
-				return;
-			}
+				Application.LoadLevel("Alpha_World1");			}
 		}
 		else{
 			if (PlayerPrefsX.GetBool("DoneTutorial")) {
