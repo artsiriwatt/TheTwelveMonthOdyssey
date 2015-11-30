@@ -24,6 +24,7 @@ public class PlayerScript : MonoBehaviour {
 	protected static double InterruptionTolerance = 0.35;
 	//removedBothFingers is used to ensure meditation can't immediately occur after the phone is shaken.
 	protected bool removedBothFingers;
+	private bool canMove;
 
     public Vector3 GetLocation() {	return transform.position; }
     public void SetLocation(Vector3 location) {	 transform.position = location; }
@@ -55,8 +56,15 @@ public class PlayerScript : MonoBehaviour {
 	}
 
 	protected void Start () {
-		movementManager.SetSitting();
-		spriteManager.isSitting = true;
+		if (saveManager.IsDailyMeditation()){
+			canMove = true;
+		}
+		else{
+			canMove = false;
+			movementManager.SetSitting();
+			spriteManager.isSitting = true;
+		}
+
 	}
 
 	protected void FixedUpdate () {
@@ -67,7 +75,7 @@ public class PlayerScript : MonoBehaviour {
         			InterruptMeditation();
         		}
 	        }
-	        else if (!isMeditating){
+	        else if (!isMeditating && canMove){
 	        	if (Input.touchCount < 2){
 	        		removedBothFingers = true;
 	       	 	}
@@ -161,7 +169,7 @@ public class PlayerScript : MonoBehaviour {
 		}
     }
 
-    public void InterruptMeditation() {
+    protected void InterruptMeditation() {
     	spriteManager.changeSpriteToStanding();
     	//Zoom the Camera Out
     	mainCamera.zoomOut();
@@ -179,7 +187,7 @@ public class PlayerScript : MonoBehaviour {
     }
 
     protected void FinishMeditation() {
-    	spriteManager.changeSpriteToStanding();
+    	//spriteManager.changeSpriteToStanding();
     	//Zoom the Camera Out
     	mainCamera.zoomOut();
     	//Set isMeditating to False
@@ -191,6 +199,7 @@ public class PlayerScript : MonoBehaviour {
     	//Set Sound Level Back to Normal
     	ResetBackgroundTransparency();
 
+    	canMove = false;
     	saveManager.Save();
     }
 

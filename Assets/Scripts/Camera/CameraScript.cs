@@ -119,4 +119,8 @@ public class CameraScript : MonoBehaviour {
 		StartCoroutine(CenterCameraToPlayer());
 	}
 
+	public void CenterCameraInstantly() {
+		transform.position = new Vector3(player.transform.position.x, player.transform.position.y, -10);
+	}
+
 }

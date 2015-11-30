@@ -52,7 +52,7 @@ public class PlayerSpriteManager : MonoBehaviour {
 
 			if (screenPosition.y > Screen.height || screenPosition.y < 0 || screenPosition.x > Screen.width || screenPosition.x < 0){
 				//Handheld.Vibrate();
-				player.InterruptMeditation();
+				//player.InterruptMeditation();
 			}
 
 			if (Mathf.Abs((Input.acceleration.y - initialYAccel)) > yBalenceThreshold){
@@ -90,14 +90,17 @@ public class PlayerSpriteManager : MonoBehaviour {
 
 				initialXAccel = Input.acceleration.x;
 				initialYAccel = Input.acceleration.y;
+				Invoke("ReturnToOriginalState", 0.25f);
+				hasNotTransitionedYet = false;
 			}
 			else if (changeToStanding){
 				animationManager.SetStanding();
 				//this.GetComponent<SpriteRenderer>().sprite = standingSprite;
 				changeToStanding = false;
+				Invoke("ReturnToOriginalState", 0.25f);
+				hasNotTransitionedYet = false;
 			}
-			Invoke("ReturnToOriginalState", 0.25f);
-			hasNotTransitionedYet = false;
+
 		}
 
 

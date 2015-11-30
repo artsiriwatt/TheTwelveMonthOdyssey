@@ -22,6 +22,8 @@ public class FadeUI : MonoBehaviour
 		image.GetComponent<Image>().CrossFadeAlpha(a, 5.0f, false);
 	}
 
-
+	public void TransitionToAlphaValue(float a, float dur) {
+		image.GetComponent<Image>().CrossFadeAlpha(a, dur, false);
+	}	
  
 }

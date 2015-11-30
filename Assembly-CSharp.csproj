@@ -45,8 +45,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\BottleTriggerScript.cs" />
      <Compile Include="Assets\Scripts\Camera\CameraScript.cs" />
+     <Compile Include="Assets\Scripts\Objects\BottleTriggerScript.cs" />
      <Compile Include="Assets\Scripts\Objects\CloudObject.cs" />
      <Compile Include="Assets\Scripts\Objects\DynamicObject.cs" />
      <Compile Include="Assets\Scripts\Objects\StaticObject.cs" />
@@ -61,6 +61,7 @@
      <Compile Include="Assets\Scripts\Sound\MusicController.cs" />
      <Compile Include="Assets\Scripts\Sound\SoundEffectController.cs" />
      <Compile Include="Assets\Scripts\UI\FadeUI.cs" />
+     <Compile Include="Assets\Scripts\UI\TutorialUIScript.cs" />
      <Compile Include="Assets\Scripts\Utilities\DateTimeTracker.cs" />
      <Compile Include="Assets\Scripts\Utilities\LoadLevelManager.cs" />
      <Compile Include="Assets\Scripts\Utilities\PlayerPrefsX.cs" />
